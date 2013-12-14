@@ -4,7 +4,6 @@
   (:use [loom.graph :only [weighted? directed? add-nodes* add-edges* nodes edges]]
         [loom.metrics :only [degrees]]))
 
-
 (defn gen-rand
   "Adds num-nodes nodes and approximately num-edges edges to graph g. Nodes
   used for each edge are chosen at random and may be chosen more than once."
