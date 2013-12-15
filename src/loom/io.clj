@@ -33,8 +33,8 @@
   (edge-label n1 n2) to determine what labels to use for nodes and edges,
   if any. Will detect graphs that satisfy AttrGraph and include attributes,
   too."
-  [g & {:keys [graph-name node-label edge-label]
-        :or {graph-name "graph"} :as opts }]
+  [g & {:keys [graph-name node-label edge-label clusters]
+        :or {graph-name "loom-graph"} :as opts }]
   (let [node-label (if node-label node-label
                        (if (attr? g)
                          #(attr g % :label) (constantly nil)))
@@ -60,9 +60,9 @@
                      :label el)]
         (doto sb
           (.append "  \"")
-          (.append (dot-esc n1l))
+          (.append (dot-esc (str n1)))
           (.append (if d? "\" -> \"" "\" -- \""))
-          (.append (dot-esc n2l))
+          (.append (dot-esc (str n2)))
           (.append \"))
         (when (or (:label eattrs) (< 1 (count eattrs)))
           (.append sb \space)
@@ -71,13 +71,24 @@
     (doseq [n (nodes g)]
       (doto sb
         (.append "  \"")
-        (.append (dot-esc (str (or (node-label n) n))))
+        (.append (dot-esc (str n)))
         (.append \"))
       (when-let [nattrs (when (attr? g)
                           (dot-attrs (attrs g n)))]
         (.append sb \space)
         (.append sb nattrs))
       (.append sb "\n"))
+    (when clusters
+      (doseq [[i cluster] (map vector (range) clusters)]
+        (doto sb
+          (.append "  subgraph cluster")
+          (.append i)
+          (.append " {\n    "))
+        (doseq [n cluster]
+          (doto sb
+            (.append (str "\"" n "\""))
+            (.append "; ")))
+        (.append sb "\n  }\n")))
     (str (doto sb (.append "}")))))
 
 (defn dot

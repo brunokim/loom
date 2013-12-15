@@ -40,6 +40,7 @@
                      ai (get a i)]
                  (- eii (* ai ai)))))))
 
+; core.matrix-like functions manipulating vector of vectors
 (defn- transpose [mat] (apply mapv vector mat))
 (defn- remove-nth [v i] (vec (concat (subvec v 0 i) (subvec v (inc i)))))
 (defn- remove-symm-row [mat i] (-> mat (remove-nth i) transpose (remove-nth i)))
@@ -54,7 +55,8 @@
   "Returns lazy sequence of successive hierarchical clustering in the given graph by greedily
   maximizing modularity.
   
-  Graph must be undirected and unweighted."
+  Graph must be undirected and unweighted. Current implementation is only feasible for small
+  graphs, as it stores the matrix explicitely."
   [g]
   (when (or (directed? g) (weighted? g))
     (throw (IllegalArgumentException. "Graph is directed and/or weighted")))
@@ -106,3 +108,4 @@
          (apply max-key :q )
          :tree
          (map (comp set flatten)))))
+
